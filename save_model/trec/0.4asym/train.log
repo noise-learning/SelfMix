@@ -1,0 +1,55 @@
+--------args----------
+results_dir: ./save_model/trec/0.4asym
+train_path: ./data/trec/train.csv
+test_path: ./data/trec/test.csv
+noise_ratio: 0.4
+noise_type: asym
+show_bar: False
+seed: 8
+num_class: None
+batch_size: 32
+batch_size_m: 16
+sentence_len: 256
+bert_type: bert-base-uncased
+warmup_epoch: 2
+epoch: 4
+learning_rate: 1e-05
+dropout_rate: 0.1
+accumulation_steps: 1
+relabel: 12
+avg_loss_epoch: 1
+p_threshold: 0.5
+T: 0.5
+alpha: 0.75
+lambda_r: 0.3
+lambda_p: 0.2
+--------args----------
+
+2022-02-22 13:10:38 use gpu device = 0
+2022-02-22 13:10:38 load data from ./data/trec/train.csv ./data/trec/test.csv
+2022-02-22 13:10:39 train data 5452 , valid data 0 , test data 500 
+
+====================================== warmup for model ======================================
+
+2022-02-22 13:11:16 Warmup Epoch [1/2]: Loss: 1.3142, Accuracy: 0.4337 
+2022-02-22 13:11:17 Warmup Test Epoch [1/2]: Loss: 0.8964, Accuracy: 0.6720 
+2022-02-22 13:11:27 Warmup Epoch [2/2]: Loss: 0.9088, Accuracy: 0.5553 
+2022-02-22 13:11:28 Warmup Test Epoch [2/2]: Loss: 0.5815, Accuracy: 0.8860 
+
+====================================== start mix-up train ======================================
+
+2022-02-22 13:11:51 labeled: 4239  noise: 1071 ; unlabeled: 1213  noise: 1137 ;ratio: 0.2225
+2022-02-22 13:12:22 Loss_Mix: 0.6563, Loss_R: 0.1131, Loss_P: 3.0612, Loss: 1.3025 
+2022-02-22 13:12:24 Test Epoch [1/4]: Loss1: 0.4491, Accuracy1: 0.9420 
+2022-02-22 13:12:47 labeled: 3162  noise: 104 ; unlabeled: 2290  noise: 2104 ;ratio: 0.4200
+2022-02-22 13:13:10 Loss_Mix: 0.3910, Loss_R: 0.0976, Loss_P: 3.1947, Loss: 1.0592 
+2022-02-22 13:13:13 Test Epoch [2/4]: Loss1: 0.3517, Accuracy1: 0.9500 
+2022-02-22 13:13:36 labeled: 3218  noise: 96 ; unlabeled: 2234  noise: 2112 ;ratio: 0.4098
+2022-02-22 13:14:00 Loss_Mix: 0.7175, Loss_R: 0.0590, Loss_P: 3.2954, Loss: 1.3943 
+2022-02-22 13:14:02 Test Epoch [3/4]: Loss1: 0.3025, Accuracy1: 0.9660 
+2022-02-22 13:14:26 labeled: 3240  noise: 102 ; unlabeled: 2212  noise: 2106 ;ratio: 0.4057
+2022-02-22 13:14:49 Loss_Mix: 0.8109, Loss_R: 0.0893, Loss_P: 3.2356, Loss: 1.4848 
+2022-02-22 13:14:50 Test Epoch [4/4]: Loss1: 0.3499, Accuracy1: 0.9500 
+test_best [0.942, 0.95, 0.966, 0.966]
+test_last [0.942, 0.95, 0.966, 0.95]
+Test best 0.966000 , last 0.950000
