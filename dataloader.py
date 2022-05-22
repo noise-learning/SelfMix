@@ -47,7 +47,7 @@ class MyDataset(Dataset):
 
     def __getitem__(self, index):
         
-        text = self.input[index][1]
+        text = self.input[index][-1]
 
         input_id, att_mask = self.get_tokenized(text)
 
@@ -108,32 +108,5 @@ class MyDataloader():
             return labeled_trainloader, unlabeled_trainloader
 
 
-    def count_label(self):
 
-        label_idx=[]
-        cl_idx=[]
-        cl_idx2=[]
 
-        labels=self.dataset.label
-        cl=self.dataset.cl
-
-        for label_id in range(self.args.num_class):
-            idx=(labels==label_id)
-            idx2=(cl==label_id)
-            idx2=torch.tensor(idx2,dtype=int)
-            idx22=(idx2-0.5)*2
-
-            label_idx.append(idx)
-            cl_idx.append(idx2)
-            cl_idx2.append(idx22)
-
-        return label_idx, cl_idx, cl_idx2
-
-    def relabel(self,prob,index,t_threshold):
-
-        ori_label = self.dataset.label[index]
-        pred_label = torch.argmax(prob,dim=-1)
-
-        for i in range(index.size):
-            if prob[i][pred_label[i]] > t_threshold[pred_label[i]] and prob[i][ori_label[i]] < t_threshold[ori_label[i]]:
-                self.dataset.label[index[i]] = pred_label[i]

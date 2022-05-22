@@ -8,7 +8,7 @@ class DataToDataset(Dataset):
     def __init__(self,data,label):
         self.text = data["texts"]
         self.label = label
-        self.cl = torch.tensor(np.array(self.text[:,0],dtype='int64')) # clean label
+        self.cl = torch.tensor(np.array(self.text[:,-2],dtype='int64')) # clean label
         
     def __len__(self):
         return len(self.label)
@@ -63,18 +63,17 @@ def get_label_id(args, file, clean=True):
     
     return labels
 
-def flip_label(y, n_class, pattern, ratio, one_hot=False):
+def flip_label(y, n_class, pattern, ratio):
     ''' 
     Randomly generate noise labels
     y: true label, one hot
     n_class: num classes
-    pattern: 'asym' or 'sym'        
+    pattern: 'asym' or 'sym'  or 'idn'      
     ratio: float, noisy ratio
     '''
+    if pattern=='idn':
+        return y
     
-    if one_hot:
-        y = np.argmax(y,axis=1) #[np.where(r==1)[0][0] for r in y]
-
     for i in range(len(y)):
         if pattern=='sym':
             p1 = ratio/(n_class-1)*np.ones(n_class)
@@ -83,18 +82,8 @@ def flip_label(y, n_class, pattern, ratio, one_hot=False):
         elif pattern=='asym':
             if y[i]==5:
                 ny=np.random.randint(5)
-                for j in range(i+1,len(y)):
-                    if y[j]==ny:
-                        y[j] = np.random.choice([y[j],5],p=[1-ratio,ratio])
-                        break
-            elif y[i]==4:
-                ny=0
             else:
                 ny=y[i]+1
             y[i] = np.random.choice([y[i],ny%n_class],p=[1-ratio,ratio])            
             
-    #convert back to one hot
-    if one_hot:
-        y = np.eye(n_class)[y]
-
     return y

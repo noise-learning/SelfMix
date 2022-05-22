@@ -38,21 +38,6 @@ def count_noise(labeled_loader, unlabeled_loader):
         %(len(data1), len(noise1), len(data2), len(noise2), len(data2)/(len(data1)+len(data2))))
 
 
-def count_noise2(args, train_loader, cl_idx, cl_idx2):
-    data=train_loader.dataset
-
-    noise_lst=[]
-    noise_num=0
-    for id in range(args.num_class):
-
-        noise=(data.label != (data.cl * cl_idx2[id]))*cl_idx[id]
-        noise=noise.nonzero()
-        noise_num += len(noise)
-        noise_lst.append(len(noise)/len(cl_idx[id].nonzero()))
-
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), noise_lst, noise_num/len(data))
-
-
 def compute_kl_loss(p, q, pad_mask=None):
     
     p_loss = F.kl_div(F.log_softmax(p, dim=-1), F.softmax(q, dim=-1), reduction='none')

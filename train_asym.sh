@@ -9,5 +9,6 @@ CUDA_VISIBLE_DEVICES=0 python main.py \
     --seed 8 \
     --noise_ratio 0.4 \
     --noise_type asym  \
+    --warmup_epoch 2 \
     --lambda_r 0.3 \
     --lambda_p 0.2 > $results_dir/train.log
