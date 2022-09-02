@@ -1,0 +1,7 @@
+{
+    "model_name_or_path": "save_model/bert-selfmix.pt",
+    "pretrained_model_name_or_path": "bert-base-uncased",
+    "eval_file_path": "./data/trec/test.csv",
+    "dataset_name": "trec",
+    "batch_size": 32
+}

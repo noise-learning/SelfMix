@@ -1,40 +1,86 @@
-# SelfMix: Robust Learning Against Textual Label Noise with Self-Mixup Training
+## SelfMix: Robust Learning Against Textual Label Noise with Self-Mixup Training
 
-## Abstract
+This repository contains the code and pre-trained models for our paper [SelfMix: Robust Learning Against Textual Label Noise with Self-Mixup Training]()
 
-The conventional success of textual classification relies on annotated data, and the new paradigm of pre-trained language models (PLMs) still requires a few labeled data for downstream tasks. However, in real-world applications, label noise inevitably exists in training data, damaging the effectiveness, robustness, and generalization of the models constructed on such data. Recently, remarkable achievements have been made to mitigate this dilemma in visual data, while only a few explore textual data. To fill this gap, we present SelfMix, a simple yet effective method, to handle label noise in text classification tasks. SelfMix uses the Gaussian Mixture Model to separate samples and leverages semi-supervised learning. Unlike previous works requiring multiple models, our method utilizes the dropout mechanism on a single model to reduce the confirmation bias in self-training and introduces a textual level mixup training strategy. Experimental results on three text classification benchmarks with different types of text show that the performance of our proposed method outperforms these strong baselines designed for both textual and visual data under different noise ratios and noise types.
 
-## Illustration
+## Overview
 
-![framework](img/framework.png)
+We proposes SelfMix, i.e., a self-distillation robust training method based on the pre-trained models.
 
-## Environment
+SelfMix uses GMM to select the samples that are more likely to be wrong and erase their original labels. Then we leverage semi-supervised learning to jointly train the labeled set `X` (contains mostly clean samples) and an unlabeled set `U` (contains mostly noisy samples).
 
-1. python 3.6
-2. torch
-3. transformers
-4. sklearn
+![](figure/model.png)
 
-## Experiments
+## Datasets
 
-We do experiments on three text classification benchmarks of different types, including Trec: a question-type dataset, AG-News: a news categorization dataset, and IMDB: a sentiment analysis dataset. The folder already has the Trec dataset to test, and you can download others yourself. Please process label to id (start from 0).
+We do experiments on three text classification benchmarks of different types, including Trec, AG-News and IMDB.
 
-- For symmetric or asymmetric noise, we generate noisy labels by 'filp_label' in read_data.py, and you can run the model directly through
+| Dataset | Class | Type | Train | Test |
+|:--------|:-----:|:----:|:-----:|:-----|
+|  Trec | 6 | Question-Type | 5452 | 500 |
+| IMDB | 2 | Sentiment Analysis | 45K | 5K |
+| AG-News | 4 | News Categorization | 120K | 7.6K |
 
-```bash
-bash train_asym.sh
-```
 
-For different datasets, we recommend using hyperparameters as follows.
+### Noise Sample Generation
 
-| Dataset  | Trec | AG-News | IMDB |
-| -------- | ---- | ------- | ---- |
-| lambda_p | 0.2  | 0.2     | 0.1  |
-| lambda_r | 0.3  | 0.3     | 0.5  |
+We evaluate our strategy under the following two types of label noise
 
-- For instance-dependent noise (IDN), following [Algan and Ulusoy, 2020](https://arxiv.org/pdf/2003.10471.pdf), we train an LSTM classifier on a small set of the original training data and flip the origin labels to the class with the highest prediction probability among other classes. We keep the hyperparameters ($\lambda_p$, $\lambda_r$) as (0.0, 0.3) constant for all datasets under instance-dependent noise, and you can run the model directly through
+* Asymmetric noise (Asym): Following [Chen et al.](https://arxiv.org/abs/1905.05040), we choose a certain proportion of samples and flip their labels to the corresponding class according to the asymmetric noise transition matrix.
+* Instance-dependent Noise (IDN): Following [Algan and Ulusoy](https://arxiv.org/abs/2003.10471), we train an LSTM classifier on a small set of the original training data and flip the origin labels to the class with the highest prediction.
+
+You can construct noisy datsets by the following command (e.g., Trec 0.4asym),
 
 ```bash
-bash train_idn.sh
+python data/corrupt.py \
+    --src_data_path data/trec/train.csv \
+    --save_path data/trec/train_corrupted.csv \
+    --noise_type asym \
+    --noise_ratio 0.4
 ```
 
+Since generating IDN is a bit more complex, we provide datasets of our experiments directly [here]().
+
+### Hyperparameters
+
+We use the following hyperparamters for training SelfMix:
+
+| Data Settings | Trec/AG-News(Asym) | IMDB(Asym) | AG-News/IMDB(IDN) |
+|:--------|:-----:|:----:|:-----:|
+| `lambda_p` | 0.2 | 0.1 | 0.0 |
+| `lambda_r` | 0.3 | 0.5 | 0.3 |
+| `class_reg` | False | False | True |
+
+## Train
+
+In the following section, we describe how to train a SelfMix model by using our code.
+
+### Requirements
+
+You should run the following script to install the remaining dependencies first.
+
+```bash
+pip install -r requirements.txt
+```
+
+### Quick Start
+
+We list some demo config in folder `demo_config`, you can just use the demo config to train,
+
+```bash
+python train.py demo_config/trec-bert-asym_train.json
+```
+
+### Parameters
+
+Details about the meaning of parameters can be seen in our paper and dataclass `ModelArguments`, `DataTrainingArguments` and `OurTrainingArguments` in `train.py`
+
+## Evaluation
+
+Similarly, you can run evaluation by the following command,
+
+```bash
+python evaluation.py demo_config/trec-bert_eval.json
+```
+
+Details about parameters can be seen in dataclass `ModelArguments` and `DataEvalArguments` in `evaluation.py`.
