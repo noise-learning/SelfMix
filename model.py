@@ -1,57 +1,41 @@
 import torch
 import torch.nn as nn
-from transformers import BertModel
+from transformers import AutoModel
 
 
 class Bert4Classify(nn.Module):
-    def __init__(self, args):
+    def __init__(self, pretrained_model_name_or_path, dropout_rate, num_classes):
         super(Bert4Classify, self).__init__()
+        self.encoder = AutoModel.from_pretrained(pretrained_model_name_or_path)
+        d_model = 768 if 'bert' in pretrained_model_name_or_path else 1024
+        self.mlp = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.Tanh(),
+            nn.Dropout(dropout_rate),
+            nn.Linear(d_model, num_classes)
+        )
 
-        self.encoder = BertModel.from_pretrained(args.bert_type)
-
-        self.classifier1 = torch.nn.Linear(768, 768)
-        self.classifier2 = torch.nn.Linear(768, args.num_class)
-        self.dropout = torch.nn.Dropout(args.dropout_rate)
-
-    def forward(self, input_ids, att_mask, is_training=True):
-
-        max_len = att_mask.sum(1).max()
-        input_ids = input_ids[:,:max_len]
-        att_mask = att_mask[:,:max_len]
-
-        all_hidden = self.encoder(input_ids=input_ids,attention_mask=att_mask)
-
-        emb = all_hidden[0][:,0,:]
-
-        logits = self.classifier1(emb)
-        logits = torch.nn.Tanh()(logits)
-
-        if is_training:
-            logits = self.dropout(logits)
-
-        logits = self.classifier2(logits)
-
-        return logits
+    def forward(self, input_ids, att_mask):
+        sentence_emb = self.get_sentence_embedding(input_ids, att_mask)
+        output = self.classify(sentence_emb)
+        return output
     
-    def emb(self, input_ids, att_mask, is_training=True):
-
+    def get_sentence_embedding(self, input_ids, att_mask):
         max_len = att_mask.sum(1).max()
-        input_ids = input_ids[:,:max_len]
-        att_mask = att_mask[:,:max_len]
+        input_ids = input_ids[:, :max_len]
+        att_mask = att_mask[:, :max_len]
+        all_hidden = self.encoder(input_ids, att_mask)
+        sentence_emb = all_hidden[0][:, 0]
+        return sentence_emb
 
-        bert = self.encoder(input_ids,att_mask)
-        emb= bert[0][:,0,:]
-
-        return emb
-
-    def classify(self, x, is_training=True):
-
-        logits = self.classifier1(x)
-        logits = torch.nn.Tanh()(logits)
-
-        if is_training:
-            logits = self.dropout(logits)
-
-        logits = self.classifier2(logits)
-
-        return logits
+    def classify(self, x):
+        output = self.mlp(x)
+        return output
+    
+    def save_model(self, model_save_path):
+        torch.save(self.state_dict(), model_save_path)
+    
+    def load_model(self, model_load_path):
+        model_state_dict = torch.load(model_load_path)
+        self.load_state_dict(model_state_dict)
+        

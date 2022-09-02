@@ -1,0 +1,24 @@
+{
+    "pretrained_model_name_or_path": "bert-base-uncased",
+    "dropout_rate": 0.1,
+    "p_threshold": 0.5,
+    "temp": 0.5,
+    "alpha": 0.75,
+    "lambda_p": 0.0,
+    "lambda_r": 0.3,
+    "class_reg": true,
+
+    "dataset_name": "trec",
+    "train_file_path": "./data/trec/train_corrupted.csv",
+    "eval_file_path": "./data/trec/test.csv",
+    "batch_size": 32,
+    "batch_size_mix": 16,
+    "max_sentence_len": 256,
+    
+    "seed": 1,
+    "warmup_strategy": "samples",
+    "warmup_samples": 5000,
+    "train_epochs": 4,
+    "grad_acc_steps": 1,
+    "model_save_path": "save_model/bert-selfmix.pt"
+}
