@@ -101,10 +101,8 @@ class SelfMixTrainer:
                     
             if self.eval_data is not None:
                 eval_loader = self.eval_data.run("all")
-                eval_res = self.evaluate(eval_loader)
-                # logger.info("Warmup Eval Results: Accuracy: {:.2%}, Precision: {:.2%}, Recall: {:.2%}, F1: {:.2%}"
-                #             .format(eval_res['accuracy'], eval_res['precision'], eval_res['recall'], eval_res['f1']))
-            
+                self.evaluate(eval_loader)
+                
     def evaluate(self, eval_loader=None):
         if eval_loader is None:
             eval_loader = self.eval_data.run("all")        
