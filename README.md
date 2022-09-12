@@ -13,7 +13,7 @@ This repository contains the code and pre-trained models for our paper [SelfMix:
     - [Quick Start](#quick-start)
     - [Parameters](#parameters)
   - [Evaluation](#evaluation)
-  - [Baselines](#results)
+  - [Baselines](#baselines)
   - [Results](#results)
 
 ## Overview
