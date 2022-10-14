@@ -1,6 +1,6 @@
 ## SelfMix: Robust Learning Against Textual Label Noise with Self-Mixup Training
 
-This repository contains the code and pre-trained models for our paper [SelfMix: Robust Learning Against Textual Label Noise with Self-Mixup Training]()
+This repository contains the code and pre-trained models for our paper [SelfMix: Robust Learning Against Textual Label Noise with Self-Mixup Training](https://arxiv.org/abs/2210.04525)
 
 ## Quick Links
 
@@ -52,7 +52,9 @@ python data/corrupt.py \
     --noise_ratio 0.4
 ```
 
-Since generating IDN is a bit more complex, we provide datasets of our experiments directly [here]().
+You can generate IDN dataset by the procedures:
+1. train an LSTM classifier on a small set of the original training data
+2. flip the origin labels to the class with the highest prediction according to [the code repo](https://github.com/gorkemalgan/corrupting_labels_with_distillation/blob/master/noise.py)
 
 ### Parameter Setting
 
